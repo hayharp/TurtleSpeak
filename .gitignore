@@ -1,5 +1,5 @@
 /__pycache__
 /app.py
-/models
-/mvc
-/src
+!/src
+/src/*
+!/src/TurtleSpeak.js
