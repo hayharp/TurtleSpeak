@@ -2,4 +2,8 @@
 /app.py
 !/src
 /src/*
+/vendor
 !/src/TurtleSpeak.js
+
+favicon.ico
+requirements.txt
