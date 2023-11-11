@@ -23,6 +23,17 @@ const octave_translate = {
     '6': "'''",
     '7': "''''"
 }
+const len_translate = {
+    '1': '1',
+    '2': '2',
+    '4': '4',
+    '8': '8',
+    '16': '6',
+    '32': '3',
+    '64': '5',
+}
+const rhythm_parser = /(\d+)(\D)([.]?)/
+const time_sig_parser = /(\d)\/(\d)/
 
 export function speak(turtle) {
     var now = Tone.now()
@@ -81,15 +92,28 @@ export function parse_ts(turtle) {
     let tpm = parseInt(time_signature[0]) * parseInt(64 / time_signature[time_signature.length - 1]) // Total number of 64ths/measure (time per measure)
     let pim = 0 // Place in measure, or total 64ths passed
     let note_data = ''
+    let sub_group = 0
     for (let wordval in turtle.vocal.phrase) {
         let word = turtle.vocal.phrase[wordval]
-        note_data = `${note_data}${word[1][0]}`
-        if (word[0].constructor === Array) {
-            for (let noteval in word[0]) {
-                note_data = `${note_data}${octave_translate[word[0][noteval][1]]}${word[0][noteval][0]}`
-                note_data += noteval < word[0].length - 1 ? '^' : ''
+        let notes = word[0]
+        let [_, rhythm, rhythm_mod, dotted] = rhythm_parser.exec(word[1])
+        if (sub_group > 0 & rhythm_mod == 'n') {
+            note_data = `${note_data};${sub_group})`
+            sub_group = 0
+        }
+        if (rhythm_mod == 't') {
+            if (sub_group == 0) {
+                note_data = `${note_data}${len_translate[parseInt(rhythm / 2)]}(`
             }
-        } else {
+            sub_group += 1
+        }
+        note_data = `${note_data}${len_translate[rhythm]}${dotted ? '.' : ''}` // Rhythm
+        if (notes.constructor === Array) { // Chords
+            for (let noteval in notes) {
+                note_data = `${note_data}${octave_translate[notes[noteval][1]]}${notes[noteval][0]}`
+                note_data += noteval < notes.length - 1 ? '^' : ''
+            }
+        } else { // Other notes
             note_data = `${note_data}${octave_translate[word[0][1]]}${word[0][0]}`
         }
         pim += parseInt(64 / word[1][0])
@@ -108,6 +132,5 @@ export function parse_ts(turtle) {
         'timesig': time_signature,
         'data': note_data
     }
-    console.log(ts_pe)
     return (ts_pe)
 }
