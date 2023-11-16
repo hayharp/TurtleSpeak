@@ -4,9 +4,7 @@ into AgentScript.
 Nathan Hay, 2023*/
 
 import Model from '../src/Model.js'
-//import * as util from '../src/utils.js'
 import * as jsUtil from '../src/jsUtils.js'
-//import * as TurtleSpeak from '../src/TurtleSpeak.js'
 
 export default class SmallWorldModel extends Model {
     infinity = 99999
